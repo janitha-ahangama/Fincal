@@ -17,20 +17,29 @@ import insightsRoutes from './routes/insights';
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 
-// Middleware
-const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
+// Middleware (CORS)
+const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow if no origin (mobile apps, curl, etc) or if it's in the allowed list
+        // If allowedOrigins is empty, we allow any origin in production for simplicity in this stage
+        if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.warn(`[CORS] Blocked request from: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     optionsSuccessStatus: 200
 }));
+
+// Request Log for Vercel debugging
+app.use((req, _res, next) => {
+    console.log(`[DEBUG] Request: ${req.method} ${req.url} (Path: ${req.path})`);
+    next();
+});
 
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
