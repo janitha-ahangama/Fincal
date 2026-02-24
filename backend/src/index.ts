@@ -43,6 +43,10 @@ app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'FinCal API is running', env: process.env.NODE_ENV });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
@@ -62,8 +66,10 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
     res.status(500).json({ message: 'Internal server error' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 FinCal API running on http://0.0.0.0:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 FinCal API running on http://0.0.0.0:${PORT}`);
+    });
+}
 
 export default app;
