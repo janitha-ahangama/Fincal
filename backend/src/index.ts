@@ -21,18 +21,21 @@ const PORT = Number(process.env.PORT) || 5000;
 const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
 app.use(cors({
-    origin: true, // Reflect request origin
+    origin: (origin, callback) => {
+        // Reflect the request origin back to allow any site to hit the API during debugging
+        // This is necessary because Chrome/Firefox block '*' when credentials: true
+        callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     optionsSuccessStatus: 200
 }));
 
 // Robust Request Log for Vercel debugging
 app.use((req, _res, next) => {
-    console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log(`[DEBUG] Path: ${req.path}, Query: ${JSON.stringify(req.query)}`);
-    console.log(`[DEBUG] Origin Header: ${req.headers.origin || 'none'}`);
+    console.log(`[DEBUG] Incoming Request: ${req.method} ${req.originalUrl || req.url}`);
+    console.log(`[DEBUG] Path: ${req.path}, Origin: ${req.headers.origin || 'none'}`);
     next();
 });
 
