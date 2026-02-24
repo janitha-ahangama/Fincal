@@ -21,24 +21,29 @@ const PORT = Number(process.env.PORT) || 5000;
 const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [];
 
 app.use(cors({
-    origin: (origin, callback) => {
-        // Allow if no origin (mobile apps, curl, etc) or if it's in the allowed list
-        // If allowedOrigins is empty, we allow any origin in production for simplicity in this stage
-        if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.warn(`[CORS] Blocked request from: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: true, // Reflect request origin
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     optionsSuccessStatus: 200
 }));
 
-// Request Log for Vercel debugging
+// Robust Request Log for Vercel debugging
 app.use((req, _res, next) => {
-    console.log(`[DEBUG] Request: ${req.method} ${req.url} (Path: ${req.path})`);
+    console.log(`[DEBUG] ${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log(`[DEBUG] Path: ${req.path}, Query: ${JSON.stringify(req.query)}`);
+    console.log(`[DEBUG] Origin Header: ${req.headers.origin || 'none'}`);
     next();
+});
+
+app.get('/debug', (req, res) => {
+    res.json({
+        url: req.url,
+        path: req.path,
+        headers: req.headers,
+        envKeys: Object.keys(process.env).filter(k => !k.includes('SECRET') && !k.includes('KEY') && !k.includes('PRIVATE')),
+        nodeEnv: process.env.NODE_ENV
+    });
 });
 
 app.use(helmet({
