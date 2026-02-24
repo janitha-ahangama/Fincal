@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import api from '@/lib/axios';
 import { Plus, Trash2, AlertTriangle, X } from 'lucide-react';
 
@@ -21,15 +21,26 @@ export default function BudgetsPage() {
     const [budgets, setBudgets] = useState<Budget[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-    const now = new Date();
+    const now = useMemo(() => new Date(), []);
     const [form, setForm] = useState({ category: 'Food', month: now.getMonth() + 1, year: now.getFullYear(), limitAmount: 0 });
 
-    const fetch_ = async () => {
-        try { const r = await api.get(`/api/budgets?month=${now.getMonth() + 1}&year=${now.getFullYear()}`); setBudgets(r.data.budgets); }
-        catch (e) { console.error(e); } finally { setLoading(false); }
-    };
+    const fetch_ = useCallback(async () => {
+        try {
+            const month = now.getMonth() + 1;
+            const year = now.getFullYear();
+            const r = await api.get(`/api/budgets?month=${month}&year=${year}`);
+            setBudgets(r.data.budgets);
+        }
+        catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    }, [now]);
 
-    useEffect(() => { fetch_(); }, []);
+    useEffect(() => {
+        fetch_();
+    }, [fetch_]);
 
     const handleCreate = async () => {
         try { await api.post('/api/budgets', form); setShowModal(false); fetch_(); }

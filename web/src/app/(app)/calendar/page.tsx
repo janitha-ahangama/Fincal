@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/lib/axios';
 
@@ -19,7 +19,7 @@ export default function CalendarPage() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    const fetchTransactions = async () => {
+    const fetchTransactions = useCallback(async () => {
         try {
             // Fetch for the current month. The API supports month/year params
             const res = await api.get(`/api/transactions?month=${month + 1}&year=${year}`);
@@ -29,11 +29,11 @@ export default function CalendarPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [month, year]);
 
     useEffect(() => {
         fetchTransactions();
-    }, [currentDate]);
+    }, [fetchTransactions]);
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay();

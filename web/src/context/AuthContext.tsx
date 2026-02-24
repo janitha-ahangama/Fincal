@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await updateProfile(newUser, { displayName: name });
 
         // Register user profile on backend
-        const token = await newUser.getIdToken();
+        await newUser.getIdToken();
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

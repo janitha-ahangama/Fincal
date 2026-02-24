@@ -9,7 +9,7 @@ const api = axios.create({
 // Attach Firebase ID token to every request
 api.interceptors.request.use(async (config) => {
     // Try to get token from current user
-    let user = auth.currentUser;
+    const user = auth.currentUser;
 
     // If no user, wait a bit or try to get it from firebase's internal management
     // However, in a Next.js client component environment with RootLayout waiting for auth,

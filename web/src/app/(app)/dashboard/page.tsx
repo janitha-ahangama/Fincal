@@ -18,6 +18,15 @@ import api from '@/lib/axios';
 
 const COLORS = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#ec4899', '#3b82f6'];
 
+interface Transaction {
+    id: string;
+    type: 'income' | 'expense';
+    category: string;
+    amount: number;
+    date: string;
+    notes?: string;
+}
+
 interface DashboardData {
     totalIncome: number;
     totalExpenses: number;
@@ -28,7 +37,7 @@ interface DashboardData {
     overallSavings: number;
     categoryBreakdown: Record<string, number>;
     monthlyTrend: { month: string; income: number; expenses: number }[];
-    recentTransactions: any[];
+    recentTransactions: Transaction[];
 }
 
 function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
@@ -180,10 +189,10 @@ export default function DashboardPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {((data as any)?.recentTransactions || []).length === 0 ? (
+                            {(data?.recentTransactions || []).length === 0 ? (
                                 <tr><td colSpan={4} className="px-6 py-10 text-center text-gray-500">No transactions yet.</td></tr>
                             ) : (
-                                (data as any)?.recentTransactions.map((t: any, i: number) => (
+                                data?.recentTransactions.map((t, i) => (
                                     <tr key={i} className="border-b border-gray-800/30 last:border-0 hover:bg-gray-800/20 transition">
                                         <td className="px-6 py-4 text-gray-300">{t.date}</td>
                                         <td className="px-6 py-4"><span className="bg-gray-800 px-2 py-1 rounded-md text-gray-300 text-xs">{t.category}</span></td>

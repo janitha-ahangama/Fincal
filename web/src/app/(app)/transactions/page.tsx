@@ -39,7 +39,7 @@ export default function TransactionsPage() {
         try {
             const res = await api.get('/api/transactions');
             setTransactions(res.data.transactions);
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Fetch error:', e);
         }
         finally { setLoading(false); }
@@ -59,9 +59,10 @@ export default function TransactionsPage() {
             }
             setShowModal(false);
             fetchTransactions();
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Save error:', e);
-            alert(`Failed to save transaction: ${e.response?.data?.message || e.message}`);
+            const err = e as { response?: { data?: { message?: string } }; message?: string };
+            alert(`Failed to save transaction: ${err.response?.data?.message || err.message}`);
         }
     };
 
@@ -70,9 +71,10 @@ export default function TransactionsPage() {
         try {
             await api.delete(`/api/transactions/${id}`);
             fetchTransactions();
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error('Delete error:', e);
-            alert(`Failed to delete transaction: ${e.response?.data?.message || e.message}`);
+            const err = e as { response?: { data?: { message?: string } }; message?: string };
+            alert(`Failed to delete transaction: ${err.response?.data?.message || err.message}`);
         }
     };
 
